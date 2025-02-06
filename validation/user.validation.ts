@@ -6,6 +6,10 @@ export const loginValidator = [
     .isString()
     .isStrongPassword({
       minLength: 6,
+      minLowercase: 0,
+      minNumbers: 0,
+      minSymbols: 0,
+      minUppercase: 0,
     })
     .withMessage("Please enter a valid password"),
 ];
@@ -17,6 +21,10 @@ export const registerValidator = [
     .isString()
     .isStrongPassword({
       minLength: 6,
+      minLowercase: 0,
+      minNumbers: 0,
+      minSymbols: 0,
+      minUppercase: 0,
     })
     .withMessage("Please enter a valid password"),
 ];

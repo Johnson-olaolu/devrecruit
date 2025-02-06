@@ -11,9 +11,7 @@ router.post("/", createOrderValidator, createOrder);
 
 router.get("/status", getOrderByStatusValidator, getOrderByStatus);
 
-router.get("/totalrevenue", getTotalRevenue);
-
-router.get("/query", getTotalRevenue);
+router.get("/total-revenue", getTotalRevenue);
 
 router.get("/:id", getSingleOrder);
 

@@ -3,6 +3,8 @@ import { validationResult } from "express-validator";
 import { AppError } from "../utils/errorHandler";
 import { Request, Response } from "express";
 import { Order } from "./models/order.model";
+import logger from "../config/wiston.config";
+import { IUser } from "../user/models/user.model";
 
 //Register User
 export const createOrder = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -11,19 +13,21 @@ export const createOrder = expressAsyncHandler(async (req: Request, res: Respons
     throw new AppError(errors.array().toString(), 400);
   }
   try {
+    const user = (req as any).user as IUser;
     const { totalAmount, items, status } = req.body;
-    const order = await Order.create({ totalAmount, items, status });
+    const order = await Order.create({ user: user.id, totalAmount, items, status });
     res.status(201).json({
       message: "Order created successfully",
       data: order,
     });
   } catch (error) {
+    logger.info(error);
     throw new AppError("Error creating order", 500);
   }
 });
 
 export const getAllOrders = expressAsyncHandler(async (req: Request, res: Response) => {
-  const orders = await Order.find();
+  const orders = await Order.find().populate("user");
   res.status(200).json({
     message: "Orders fetched successfully",
     data: orders,
@@ -35,7 +39,7 @@ export const getTotalRevenue = expressAsyncHandler(async (req: Request, res: Res
   const totalRevenue = orders.reduce((startValue, order) => order.totalAmount + startValue, 0);
   res.status(200).json({
     message: "Total revenue fetched successfully",
-    data: totalRevenue,
+    data: { totalRevenue },
   });
 });
 
@@ -45,7 +49,7 @@ export const getOrderByStatus = expressAsyncHandler(async (req: Request, res: Re
     throw new AppError(errors.array().toString(), 400);
   }
   const status = req.query.status;
-  const orders = await Order.find({ status });
+  const orders = await Order.find({ status }).sort({ createdAt: 1 });
   res.status(200).json({
     message: "Orders fetched successfully",
     data: orders,

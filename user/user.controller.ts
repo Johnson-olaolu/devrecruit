@@ -5,12 +5,19 @@ import { AppError } from "../utils/errorHandler";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import redisClient from "../config/redis.config";
+import logger from "../config/wiston.config";
 
 //Register User
 export const registerUser = expressAsyncHandler(async (req: Request, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new AppError(errors.array().toString(), 400);
+    throw new AppError(
+      errors
+        .array()
+        .map((e) => e.msg)
+        .join(", "),
+      400
+    );
   }
   try {
     const { name, email, password } = req.body;
@@ -20,8 +27,8 @@ export const registerUser = expressAsyncHandler(async (req: Request, res: Respon
       message: "User created successfully",
       data: signedInUser,
     });
-  } catch (error) {
-    throw new AppError("Error creating User", 500);
+  } catch (error: any) {
+    throw new AppError("Error creating User " + error?.errorResponse?.errmsg, 500);
   }
 });
 
@@ -29,14 +36,21 @@ export const registerUser = expressAsyncHandler(async (req: Request, res: Respon
 export const loginUser = expressAsyncHandler(async (req: Request, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new AppError(errors.array().toString(), 400);
+    throw new AppError(
+      errors
+        .array()
+        .map((e) => e.msg)
+        .join(", "),
+      400
+    );
   }
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
     throw new AppError("Invalid email or password", 404);
   }
-  if (await user?.comparePassword(password)) {
+  logger.info(await user?.comparePassword(password));
+  if (!(await user?.comparePassword(password))) {
     throw new AppError("Invalid email or password");
   }
 
