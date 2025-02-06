@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createOrder, deleteOrder, getAllOrders, getOrderByStatus, getSingleOrder, updateOrder } from "./order.controller";
+import { createOrder, deleteOrder, getAllOrders, getOrderByStatus, getSingleOrder, getTotalRevenue, updateOrder } from "./order.controller";
 import { createOrderValidator, getOrderByStatusValidator } from "../validation/order.validation";
 
 const router = Router();
@@ -10,6 +10,10 @@ router.get("/", getAllOrders);
 router.post("/", createOrderValidator, createOrder);
 
 router.get("/status", getOrderByStatusValidator, getOrderByStatus);
+
+router.get("/totalrevenue", getTotalRevenue);
+
+router.get("/query", getTotalRevenue);
 
 router.get("/:id", getSingleOrder);
 
